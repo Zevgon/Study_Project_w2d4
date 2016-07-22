@@ -44,20 +44,49 @@ def best_two_sum?(arr, target)
   false
 end
 
-def four_sum?(arr, target)
-  hash = Hash.new{ |h, k| h[k] = 4
-  arr.each do |el|
-    hash[target - el] -= 1
-    hash[el] = 1
-
+def four_sum_bad?(arr, target)
+  (0...arr.length - 3).each do |idx1|
+    (idx1 + 1...arr.length - 2).each do |idx2|
+      (idx2 + 1...arr.length - 1).each do |idx3|
+        (idx3 + 1...arr.length).each do |idx4|
+          return true if arr[idx1] + arr[idx2] + arr[idx3] + arr[idx4] == target
+        end
+      end
+    end
   end
+
+  false
 end
 
-[2, 5, 4, 3], 14
+def four_sum_okay?(arr, target)
+  first_hash = Hash.new { |h, k| h[k] = [] }
+
+  (0...arr.length - 1).each do |idx1|
+    (idx1 + 1...arr.length).each do |idx2|
+      first_hash[arr[idx1] + arr[idx2]] << [idx1, idx2]
+    end
+  end
 
 
+  sums_hash = Hash.new { |h, k| h[k] = false }
+  first_hash.keys.each do |el|
+    first_hash[el].any? do |arr1|
+      first_hash[target - el].each do |arr2|
+        return true if (arr1 + arr2).uniq.length == 4
+      end
+    end
+    return true if sums_hash[target - el]
+    sums_hash[el] = true
+  end
+  false
 
+end
+
+# [2, 5, 4, 3], 14
+
+
+p four_sum_okay?([1, 4, 7, 5, 32, 7, 9, 187], 50)
 
 arr = [0, 1, 8, 5, 7]
-p best_two_sum?(arr, 6) # => should be true
-p best_two_sum?(arr, 10)
+# p best_two_sum?(arr, 6) # => should be true
+# p best_two_sum?(arr, 10)

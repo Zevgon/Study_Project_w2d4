@@ -1,4 +1,5 @@
 def max_window_range_bad(arr, window)
+  a = Time.new
   current_max_range = nil
   arr.each_index do |idx|
     temp = arr[idx...idx + window]
@@ -6,7 +7,8 @@ def max_window_range_bad(arr, window)
     current_max_range ||= temp_diff
     current_max_range = temp_diff if temp_diff > current_max_range
   end
-
+  b = Time.new
+  p b - a
   current_max_range
 end
 
@@ -91,34 +93,21 @@ end
 class StaQueue
 
   def initialize
-    @stack = MyStack.new
+    @stack1 = MyStack.new
+    @stack2 = MyStack.new
   end
 
   def enqueue(el)
-    new_stack = MyStack.new
-    until @stack.empty?
-      new_stack.push(@stack.pop)
-    end
-    @stack.push(el)
-    until new_stack.empty?
-      @stack.push(new_stack.pop)
-    end
-    @stack
+    @stack1.push(el)
   end
 
   def dequeue
-    # new_stack = MyStack.new
-    # until @stack.empty?
-    #   new_stack.push(@stack.pop)
-    # end
-    # return_value = new_stack.pop
-    #
-    # until new_stack.empty?
-    #   @stack.push(new_stack.pop)
-    # end
-    #
-    # return_value
-    @stack.pop
+    if @stack2.empty?
+      until @stack1.empty?
+        @stack2.push(@stack1.pop)
+      end
+    end
+    @stack2.pop
   end
 
   def size
@@ -134,16 +123,29 @@ end
 class MinMaxStackQueue < StaQueue
 
   def max
-    @stack.max
+    if @stack1.max.nil?
+      @stack2.max
+    elsif @stack2.max.nil?
+      @stack1.max
+    else
+      @stack2.max > @stack1.max ? @stack2.max : @stack1.max
+    end
   end
 
   def min
-    @stack.min
+    if @stack1.min.nil?
+      @stack2.min
+    elsif @stack2.min.nil?
+      @stack1.min
+    else
+      @stack2.min < @stack1.min ? @stack2.min : @stack1.min
+    end
   end
 
 end
 
 def max_window_range(arr, window)
+  a = Time.now
   queue = MinMaxStackQueue.new
   max_range = 0
   arr.each_with_index do |el, idx|
@@ -158,10 +160,13 @@ def max_window_range(arr, window)
   end
   curr_range = queue.max - queue.min
   max_range = curr_range if curr_range > max_range
+  b = Time.now
+  p b - a
   max_range
 end
 
-  p max_window_range([1, 0, 2, 5, 4, 8], 2) == 4 # 4, 8
-  p max_window_range([1, 0, 2, 5, 4, 8], 3) == 5 # 0, 2, 5
-  p max_window_range([1, 0, 2, 5, 4, 8], 4) == 6 # 2, 5, 4, 8
-  p max_window_range([1, 3, 2, 5, 4, 8], 5) == 6 # 3, 2, 5, 4, 8
+
+
+test_arr = (0...100000).to_a.shuffle
+max_window_range(test_arr, 100)
+max_window_range_bad(test_arr, 100)
